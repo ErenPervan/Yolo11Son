@@ -1,0 +1,57 @@
+# Ultralytics 🚀 AGPL-3.0 License - https://ultralytics.com/license
+
+# YOLO11-seg-pothole-lite: Lighter version with selective DSConv/SimAM usage
+# This version maintains more of the original YOLO11 structure while adding
+# key enhancements for pothole detection
+#
+# Features:
+#   - DSConv only in critical layers for boundary detection
+#   - SimAM attention at key positions
+#   - GELU activation throughout
+#   - Better balance between accuracy and speed
+
+# Parameters
+nc: 1  # number of classes (pothole only)
+scales:
+  # [depth, width, max_channels]
+  n: [0.50, 0.25, 1024]  # YOLO11n-seg-pothole-lite
+  s: [0.50, 0.50, 1024]  # YOLO11s-seg-pothole-lite (recommended)
+  m: [0.50, 1.00, 512]   # YOLO11m-seg-pothole-lite
+  l: [1.00, 1.00, 512]   # YOLO11l-seg-pothole-lite
+  x: [1.00, 1.50, 512]   # YOLO11x-seg-pothole-lite
+
+# YOLO11-pothole-lite backbone
+backbone:
+  # [from, repeats, module, args]
+  - [-1, 1, ConvGELU, [64, 3, 2]]           # 0-P1/2
+  - [-1, 1, ConvGELU, [128, 3, 2]]          # 1-P2/4
+  - [-1, 2, C3k2, [256, False, 0.25]]       # 2 - Standard C3k2
+  - [-1, 1, ConvGELU, [256, 3, 2]]          # 3-P3/8
+  - [-1, 2, C3k2_DSConv, [512, False, 0.25]] # 4 - DSConv for mid-level features
+  - [-1, 1, ConvGELU, [512, 3, 2]]          # 5-P4/16
+  - [-1, 2, C3k2_DSConv_SimAM, [512, True]] # 6 - DSConv + SimAM
+  - [-1, 1, ConvGELU, [1024, 3, 2]]         # 7-P5/32
+  - [-1, 2, C3k2_DSConv_SimAM, [1024, True]] # 8 - DSConv + SimAM
+  - [-1, 1, SPPF_SimAM, [1024, 5]]          # 9 - SPPF with attention
+  - [-1, 2, C2PSA, [1024]]                   # 10
+
+# YOLO11-pothole-lite head
+head:
+  - [-1, 1, nn.Upsample, [None, 2, "nearest"]]
+  - [[-1, 6], 1, Concat, [1]]               # cat backbone P4
+  - [-1, 2, C3k2_SimAM, [512, False]]       # 13
+
+  - [-1, 1, nn.Upsample, [None, 2, "nearest"]]
+  - [[-1, 4], 1, Concat, [1]]               # cat backbone P3
+  - [-1, 2, C3k2_DSConv, [256, False]]      # 16 (P3/8-small) - DSConv for detail
+
+  - [-1, 1, ConvGELU, [256, 3, 2]]
+  - [[-1, 13], 1, Concat, [1]]              # cat head P4
+  - [-1, 2, C3k2_SimAM, [512, False]]       # 19 (P4/16-medium)
+
+  - [-1, 1, ConvGELU, [512, 3, 2]]
+  - [[-1, 10], 1, Concat, [1]]              # cat head P5
+  - [-1, 2, C3k2_DSConv_SimAM, [1024, True]] # 22 (P5/32-large)
+
+  - [[16, 19, 22], 1, Segment, [nc, 32, 256]] # Detect(P3, P4, P5)
+

@@ -68,6 +68,16 @@ from ultralytics.nn.modules import (
     YOLOEDetect,
     YOLOESegment,
     v10Detect,
+    # Custom modules for pothole detection
+    DSConv,
+    DySnakeConv,
+    SimAM,
+    ConvGELU,
+    C3k2_DSConv,
+    C2f_DSConv,
+    C3k2_SimAM,
+    C3k2_DSConv_SimAM,
+    SPPF_SimAM,
 )
 from ultralytics.utils import DEFAULT_CFG_DICT, LOGGER, YAML, colorstr, emojis
 from ultralytics.utils.checks import check_requirements, check_suffix, check_yaml
@@ -1553,6 +1563,14 @@ def parse_model(d, ch, verbose=True):
             SCDown,
             C2fCIB,
             A2C2f,
+            # Custom modules for pothole detection
+            ConvGELU,
+            DySnakeConv,
+            C3k2_DSConv,
+            C2f_DSConv,
+            C3k2_SimAM,
+            C3k2_DSConv_SimAM,
+            SPPF_SimAM,
         }
     )
     repeat_modules = frozenset(  # modules with 'repeat' arguments
@@ -1572,6 +1590,11 @@ def parse_model(d, ch, verbose=True):
             C2fCIB,
             C2PSA,
             A2C2f,
+            # Custom modules for pothole detection
+            C3k2_DSConv,
+            C2f_DSConv,
+            C3k2_SimAM,
+            C3k2_DSConv_SimAM,
         }
     )
     for i, (f, n, m, args) in enumerate(d["backbone"] + d["head"]):  # from, number, module, args
@@ -1643,6 +1666,14 @@ def parse_model(d, ch, verbose=True):
             c2 = args[0]
             c1 = ch[f]
             args = [*args[1:]]
+        elif m is SimAM:
+            c2 = ch[f]  # SimAM preserves channel dimensions
+            args = args if args else []  # e_lambda parameter is optional
+        elif m is DSConv:
+            c1, c2 = ch[f], args[0]
+            if c2 != nc:
+                c2 = make_divisible(min(c2, max_channels) * width, 8)
+            args = [c1, c2, *args[1:]]
         else:
             c2 = ch[f]
 

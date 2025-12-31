@@ -60,6 +60,17 @@ from .block import (
     SCDown,
     TorchVision,
 )
+from .custom import (
+    DSConv,
+    DySnakeConv,
+    SimAM,
+    ConvGELU,
+    C3k2_DSConv,
+    C2f_DSConv,
+    C3k2_SimAM,
+    C3k2_DSConv_SimAM,
+    SPPF_SimAM,
+)
 from .conv import (
     CBAM,
     ChannelAttention,
@@ -179,4 +190,14 @@ __all__ = (
     "YOLOEDetect",
     "YOLOESegment",
     "v10Detect",
+    # Custom modules for pothole detection
+    "DSConv",
+    "DySnakeConv",
+    "SimAM",
+    "ConvGELU",
+    "C3k2_DSConv",
+    "C2f_DSConv",
+    "C3k2_SimAM",
+    "C3k2_DSConv_SimAM",
+    "SPPF_SimAM",
 )
