@@ -5,14 +5,17 @@ Bu repo, çukur (pothole) tespiti ve segmentasyonu için özelleştirilmiş bir 
 ## 🚀 Özellikler
 
 ### 1. Dynamic Snake Convolution (DSConv)
-- **Neden?** Standart konvolüsyon kare şeklindeki kernel'larla çalışır. Çukurlar ise kıvrımlı ve düzensiz kenarlara sahiptir.
+
+- **Neden?** Standard konvolüsyon kare şeklindeki kernel'larla çalışır. Çukurlar ise kıvrımlı ve düzensiz kenarlara sahiptir.
 - **Çözüm:** DSConv, kernel yapısını dinamik olarak hedef nesnenin şekline göre hizalar. Bu, segmentasyonun çukurun tam sınırlarına oturmasını sağlar.
 
 ### 2. Simple Attention Module (SimAM)
+
 - **Neden?** Asfalt üzerindeki yama veya gölge ile gerçek çukuru ayırt etmek zordur.
-- **Çözüm:** Parametre eklemeden çalışan bu dikkat mekanizması, modelin "önemli" piksellere (çukur içi) odaklanmasını sağlar.
+- **Çözüm:** Parameter eklemeden çalışan bu dikkat mekanizması, modelin "önemli" piksellere (çukur içi) odaklanmasını sağlar.
 
 ### 3. GELU Aktivasyon Fonksiyonu
+
 - **Neden?** Varsayılan SiLU yerine GELU kullanılarak öğrenmenin daha stabil olması sağlanmıştır.
 
 ## 📁 Dosya Yapısı
@@ -53,13 +56,13 @@ pip install -e .
 
 ## 📊 Model Varyantları
 
-| Model | Parametre | Kullanım |
-|-------|-----------|----------|
-| yolo11n-seg-pothole | En az | Mobil/Edge cihazlar |
-| yolo11s-seg-pothole | Orta | **Önerilen** |
+| Model               | Parameter   | Kullanım                     |
+| ------------------- | ----------- | ---------------------------- |
+| yolo11n-seg-pothole | En az       | Mobil/Edge cihazlar          |
+| yolo11s-seg-pothole | Orta        | **Önerilen**                 |
 | yolo11m-seg-pothole | Orta-Yüksek | Yüksek doğruluk gerektiğinde |
-| yolo11l-seg-pothole | Yüksek | Maksimum doğruluk |
-| yolo11x-seg-pothole | En yüksek | Araştırma amaçlı |
+| yolo11l-seg-pothole | Yüksek      | Maksimum doğruluk            |
+| yolo11x-seg-pothole | En yüksek   | Araştırma amaçlı             |
 
 ## 🎯 Eğitim
 
@@ -69,14 +72,14 @@ pip install -e .
 from ultralytics import YOLO
 
 # Modeli yükle (sıfırdan)
-model = YOLO('ultralytics/cfg/models/11/yolo11-seg-pothole.yaml')
+model = YOLO("ultralytics/cfg/models/11/yolo11-seg-pothole.yaml")
 
 # Veya hafif versiyonu kullan
 # model = YOLO('ultralytics/cfg/models/11/yolo11-seg-pothole-lite.yaml')
 
 # Eğitimi başlat
 results = model.train(
-    data='path/to/pothole-dataset.yaml',
+    data="path/to/pothole-dataset.yaml",
     epochs=100,
     imgsz=640,
     batch=16,
@@ -84,9 +87,8 @@ results = model.train(
     workers=4,
     patience=50,
     save=True,
-    project='pothole_detection',
-    name='yolo11s-seg-pothole',
-    
+    project="pothole_detection",
+    name="yolo11s-seg-pothole",
     # Augmentation
     hsv_h=0.015,
     hsv_s=0.7,
@@ -106,10 +108,10 @@ results = model.train(
 
 ```yaml
 # pothole-dataset.yaml
-path: /content/pothole_dataset  # dataset root dir
+path: /content/pothole_dataset # dataset root dir
 train: images/train
 val: images/val
-test: images/test  # opsiyonel
+test: images/test # opsiyonel
 
 # Classes
 names:
@@ -122,11 +124,11 @@ names:
 from ultralytics import YOLO
 
 # Eğitilmiş modeli yükle
-model = YOLO('runs/segment/yolo11s-seg-pothole/weights/best.pt')
+model = YOLO("runs/segment/yolo11s-seg-pothole/weights/best.pt")
 
 # Tahmin yap
 results = model.predict(
-    source='path/to/image.jpg',
+    source="path/to/image.jpg",
     save=True,
     conf=0.25,
     iou=0.45,
@@ -137,7 +139,7 @@ results = model.predict(
 
 # Video üzerinde
 results = model.predict(
-    source='path/to/video.mp4',
+    source="path/to/video.mp4",
     save=True,
     stream=True,
 )
@@ -148,7 +150,7 @@ results = model.predict(
 ```python
 # Validation
 metrics = model.val(
-    data='path/to/pothole-dataset.yaml',
+    data="path/to/pothole-dataset.yaml",
     batch=16,
     imgsz=640,
     conf=0.25,
@@ -164,6 +166,7 @@ print(f"Mask mAP50-95: {metrics.seg.map}")
 ## 🔧 Özel Modüller
 
 ### DSConv (Dynamic Snake Convolution)
+
 ```python
 from ultralytics.nn.modules.custom import DSConv, DySnakeConv
 
@@ -176,6 +179,7 @@ dysnake = DySnakeConv(c1=64, c2=128, k=3)
 ```
 
 ### SimAM (Simple Attention Module)
+
 ```python
 from ultralytics.nn.modules.custom import SimAM
 
@@ -185,6 +189,7 @@ output = simam(input_tensor)  # Kanal boyutu korunur
 ```
 
 ### ConvGELU
+
 ```python
 from ultralytics.nn.modules.custom import ConvGELU
 
@@ -208,4 +213,3 @@ conv = ConvGELU(c1=64, c2=128, k=3, s=1)
 ## 📄 Lisans
 
 AGPL-3.0 License - Ultralytics lisansı altında dağıtılmaktadır.
-
