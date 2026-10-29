@@ -1,5 +1,5 @@
 """
-Google Colab Training Script for YOLO11-Seg-Pothole
+Google Colab Training Script for YOLO11-Seg-Pothole.
 ====================================================
 
 Bu script'i Google Colab'da çalıştırarak çukur tespiti modelinizi eğitebilirsiniz.
@@ -264,4 +264,3 @@ if __name__ == "__main__":
     print("Bu script Google Colab'da çalıştırılmak üzere tasarlanmıştır.")
     print("Her hücreyi ayrı ayrı bir Colab notebook'una kopyalayın.")
     print("\nDetaylı bilgi için POTHOLE_README.md dosyasına bakın.")
-
